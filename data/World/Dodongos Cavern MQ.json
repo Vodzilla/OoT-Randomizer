@@ -84,25 +84,27 @@
             "Dodongos Cavern MQ After Upper Lizalfos Pot 2": "
                 can_blast_or_smash or can_use(Sticks) or can_use(Dins_Fire) or 
                 (is_adult and (logic_dc_jump or Hover_Boots or Progressive_Hookshot))",
-            "Dodongos Cavern MQ Staircase Crate Bottom Left": "True",
-            "Dodongos Cavern MQ Staircase Crate Bottom Right": "True",
+            "Dodongos Cavern MQ Staircase Crate Bottom Left": "can_bonk_crate",
+            "Dodongos Cavern MQ Staircase Crate Bottom Right": "can_bonk_crate",
             #whatever was used to destroy the boulder to activate the elevator can be used to access the top of the staircase
-            "Dodongos Cavern MQ Staircase Crate Mid Left": "True",
-            "Dodongos Cavern MQ Staircase Crate Mid Right": "True",
-            "Dodongos Cavern MQ Staircase Crate Top Left": "True",
-            "Dodongos Cavern MQ Staircase Crate Top Right": "True",
-            "Dodongos Cavern MQ Larvae Room Crate 1": "can_use(Sticks) or has_fire_source",
-            "Dodongos Cavern MQ Larvae Room Crate 2": "can_use(Sticks) or has_fire_source",
-            "Dodongos Cavern MQ Larvae Room Crate 3": "can_use(Sticks) or has_fire_source",
-            "Dodongos Cavern MQ Larvae Room Crate 4": "can_use(Sticks) or has_fire_source",
-            "Dodongos Cavern MQ Larvae Room Crate 5": "can_use(Sticks) or has_fire_source",
-            "Dodongos Cavern MQ Larvae Room Crate 6": "can_use(Sticks) or has_fire_source",
+            "Dodongos Cavern MQ Staircase Crate Mid Left": "can_bonk_crate",
+            "Dodongos Cavern MQ Staircase Crate Mid Right": "can_bonk_crate",
+            "Dodongos Cavern MQ Staircase Crate Top Left": "can_bonk_crate",
+            "Dodongos Cavern MQ Staircase Crate Top Right": "can_bonk_crate",
+            "Dodongos Cavern MQ Larvae Room Crate 1": "can_bonk_crate and (can_use(Sticks) or has_fire_source)",
+            "Dodongos Cavern MQ Larvae Room Crate 2": "can_bonk_crate and (can_use(Sticks) or has_fire_source)",
+            "Dodongos Cavern MQ Larvae Room Crate 3": "can_bonk_crate and (can_use(Sticks) or has_fire_source)",
+            "Dodongos Cavern MQ Larvae Room Crate 4": "can_bonk_crate and (can_use(Sticks) or has_fire_source)",
+            "Dodongos Cavern MQ Larvae Room Crate 5": "can_bonk_crate and (can_use(Sticks) or has_fire_source)",
+            "Dodongos Cavern MQ Larvae Room Crate 6": "can_bonk_crate and (can_use(Sticks) or has_fire_source)",
             "Dodongos Cavern MQ After Upper Lizalfos Crate 1": "
+                can_bonk_crate and (
                 can_blast_or_smash or can_use(Sticks) or can_use(Dins_Fire) or 
-                (is_adult and (logic_dc_jump or Hover_Boots or Progressive_Hookshot))",
+                (is_adult and (logic_dc_jump or Hover_Boots or Progressive_Hookshot)))",
             "Dodongos Cavern MQ After Upper Lizalfos Crate 2": "
+                can_bonk_crate and (
                 can_blast_or_smash or can_use(Sticks) or can_use(Dins_Fire) or 
-                (is_adult and (logic_dc_jump or Hover_Boots or Progressive_Hookshot))"
+                (is_adult and (logic_dc_jump or Hover_Boots or Progressive_Hookshot)))"
         },
         "exits": {
             "Dodongos Cavern Lower Right Side": "
@@ -150,14 +152,14 @@
             "Dodongos Cavern MQ Poes Room Pot 2": "True",
             "Dodongos Cavern MQ Poes Room Pot 3": "True",
             "Dodongos Cavern MQ Poes Room Pot 4": "True",
-            "Dodongos Cavern MQ Poes Room Crate 1": "True",
-            "Dodongos Cavern MQ Poes Room Crate 2": "True",
-            "Dodongos Cavern MQ Poes Room Crate 3": "True",
-            "Dodongos Cavern MQ Poes Room Crate 4": "True",
-            "Dodongos Cavern MQ Poes Room Crate 5": "True",
-            "Dodongos Cavern MQ Poes Room Crate 6": "True",
-            "Dodongos Cavern MQ Poes Room Crate 7": "True",
-            "Dodongos Cavern MQ Poes Room Crate 8": "True"
+            "Dodongos Cavern MQ Poes Room Crate 1": "can_bonk_crate",
+            "Dodongos Cavern MQ Poes Room Crate 2": "can_bonk_crate",
+            "Dodongos Cavern MQ Poes Room Crate 3": "can_bonk_crate",
+            "Dodongos Cavern MQ Poes Room Crate 4": "can_bonk_crate",
+            "Dodongos Cavern MQ Poes Room Crate 5": "can_bonk_crate",
+            "Dodongos Cavern MQ Poes Room Crate 6": "can_bonk_crate",
+            "Dodongos Cavern MQ Poes Room Crate 7": "can_bonk_crate",
+            "Dodongos Cavern MQ Poes Room Crate 8": "can_bonk_crate"
         },
         "exits": {
             "Dodongos Cavern Lower Right Side": "True"
