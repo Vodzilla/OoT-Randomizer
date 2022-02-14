@@ -492,7 +492,7 @@
             "LH Lab Dive Rupee 1": "(Progressive_Scale, 2) or can_use(Iron_Boots)",
             "LH Lab Dive Rupee 2": "(Progressive_Scale, 2) or can_use(Iron_Boots)",
             "LH Lab Dive Rupee 3": "(Progressive_Scale, 2) or can_use(Iron_Boots)",
-            "LH GS Lab Crate": "Iron_Boots and can_use(Hookshot)"
+            "LH GS Lab Crate": "Iron_Boots and can_use(Hookshot) and can_bonk_underwater_crate"
         },
         "exits": {
             "Lake Hylia": "True"
@@ -577,8 +577,8 @@
         "hint": "Gerudo Valley",
         "time_passes": true,
         "locations": {
-            "GV Crate Freestanding PoH": "True",
-            "GV Freestanding PoH Crate Rupee": "True"
+            "GV Freestanding PoH Crate Rupee": "True",
+            "GV Crate Freestanding PoH": "can_bonk_crate"
         },
         "exits": {
             "GV Lower Stream": "True"
@@ -904,7 +904,7 @@
         "time_passes": true,
         "locations": {
             "HC Malon Egg": "True",
-            "HC GS Tree": "can_child_attack",
+            "HC GS Tree": "can_child_attack and can_bonk_tree",
             "HC Malon Gossip Stone": "True",
             "HC Rock Wall Gossip Stone": "True",
             "Gossip Stone Fairy": "can_summon_gossip_fairy and has_bottle",
@@ -1013,7 +1013,7 @@
             "Market Guard House Adult Pot 5": "is_adult",
             "Market Guard House Adult Pot 6": "is_adult",
             "Market Guard House Adult Pot 7": "is_adult",
-            "Market GS Guard House": "is_child"
+            "Market GS Guard House": "is_child and can_bonk_crate"
         },
         "exits": {
             "Market Entrance": "True"
@@ -1152,11 +1152,11 @@
             "Sheik in Kakariko": "
                 is_adult and Forest_Medallion and Fire_Medallion and Water_Medallion",
             "Kak Anju as Adult": "is_adult and at_day",
-            "Kak Anju as Child": "is_child and at_day",
+            "Kak Anju as Child": "is_child and at_day and can_bonk_crate",
             "Kak GS House Under Construction": "is_child and at_night",
             "Kak GS Skulltula House": "is_child and at_night",
             "Kak GS Guards House": "is_child and at_night",
-            "Kak GS Tree": "is_child and at_night",
+            "Kak GS Tree": "is_child and at_night and can_bonk_tree",
             "Kak GS Watchtower": "
                 is_child and (Slingshot or has_bombchus or 
                     (logic_kakariko_tower_gs and (Sticks or Kokiri_Sword) and
@@ -1388,7 +1388,7 @@
         "hint": "the Graveyard",
         "locations": {
             "Graveyard Freestanding PoH": "
-                (is_adult and (here(can_plant_bean) or can_use(Longshot))) or
+                (is_adult and can_bonk_crate and (here(can_plant_bean) or can_use(Longshot))) or
                 (logic_graveyard_poh and can_use(Boomerang))",
             "Graveyard Dampe Gravedigging Tour": "is_child and at_dampe_time",
             "Graveyard GS Wall": "can_use(Boomerang) and at_night",
@@ -1736,7 +1736,8 @@
         "hint": "Death Mountain Crater",
         "locations": {
             "DMC Wall Freestanding PoH": "True",
-            "DMC GS Crate": "is_child and can_child_attack",
+            # can_bonk_tree used here to exclude hammer usage
+            "DMC GS Crate": "is_child and can_child_attack and can_bonk_tree",
             "DMC Gossip Stone": "has_explosives",
             "Gossip Stone Fairy": "
                 has_explosives and can_summon_gossip_fairy_without_suns and has_bottle"
@@ -1895,7 +1896,7 @@
         "hint": "Zora's River",
         "time_passes": true,
         "locations": {
-            "ZR GS Tree": "is_child and can_child_attack"
+            "ZR GS Tree": "is_child and can_child_attack and can_bonk_tree"
         },
         "exits": {
             "Zora River": "is_adult or has_explosives",
@@ -2063,7 +2064,7 @@
             "ZF Near Jabu Pot 2" : "is_child",
             "ZF Near Jabu Pot 3" : "is_child",
             "ZF Near Jabu Pot 4" : "is_child",
-            "ZF GS Tree": "is_child",
+            "ZF GS Tree": "is_child and can_bonk_tree",
             "ZF GS Above the Log": "can_use(Boomerang) and at_night",
             "ZF GS Hidden Cave": "
                 can_use(Silver_Gauntlets) and can_blast_or_smash and 
@@ -2128,7 +2129,7 @@
         },
         "locations": {
             "Song from Malon": "is_child and Zeldas_Letter and Ocarina and at_day",
-            "LLR GS Tree": "is_child",
+            "LLR GS Tree": "is_child and can_bonk_tree",
             "LLR GS Rain Shed": "is_child and at_night",
             "LLR GS House Window": "can_use(Boomerang) and at_night",
             "LLR GS Back Wall": "can_use(Boomerang) and at_night",
