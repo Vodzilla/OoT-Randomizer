@@ -539,7 +539,7 @@
             "GV Waterfall Freestanding PoH": "True",
             "GV GS Bean Patch": "can_plant_bugs and can_child_attack",
             "GV Cow": "is_child and can_play(Eponas_Song)",
-            "GV Crate Near Cow" : "is_child",
+            "GV Crate Near Cow" : "is_child and  can_bonk_crate",
             "GV Gossip Stone": "True",
             "Gossip Stone Fairy": "can_summon_gossip_fairy and has_bottle",
             "Bean Plant Fairy": "can_plant_bean and can_play(Song_of_Storms) and has_bottle"
@@ -577,7 +577,7 @@
         "hint": "Gerudo Valley",
         "time_passes": true,
         "locations": {
-            "GV Freestanding PoH Crate Rupee": "True",
+            "GV Freestanding PoH Crate Rupee": "can_bonk_crate",
             "GV Crate Freestanding PoH": "can_bonk_crate"
         },
         "exits": {
@@ -647,27 +647,27 @@
                 is_adult and at_night and 
                 (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot) or
                     can_use(Hover_Boots) or logic_gerudo_kitchen)",
-            "GF Adult Crate Purple Rupee" : "can_use(Hookshot)",
+            "GF Adult Crate Purple Rupee" : "can_use(Hookshot) and can_bonk_crate",
             "Hideout Break Room Pot 1" : "(can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot))",
             "Hideout Break Room Pot 2" : "(can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot))",
-            "Hideout Break Room Crate 1":"(can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot))",
-            "Hideout Break Room Crate 2":"(can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot))",
-            "Hideout Break Room Crate 3":"(can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot))",
-            "Hideout Break Room Crate 4":"(can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot))",
+            "Hideout Break Room Crate 1":"can_bonk_crate and ((can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot)))",
+            "Hideout Break Room Crate 2":"can_bonk_crate and ((can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot)))",
+            "Hideout Break Room Crate 3":"can_bonk_crate and ((can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot)))",
+            "Hideout Break Room Crate 4":"can_bonk_crate and ((can_use(Hover_Boots) or can_use(Scarecrow) or can_use(Longshot)) and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot)))",
             "Hideout 1 Torch Jail Pot 1" : "True",
             "Hideout 1 Torch Jail Pot 2" : "True",
             "Hideout 1 Torch Jail Pot 3" : "True",
-            "Hideout 1 Torch Crate" : "True",
+            "Hideout 1 Torch Crate" : "can_bonk_crate",
             "Hideout Kitchen Pot 1" : "Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot)",
             "Hideout Kitchen Pot 2" : "Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot)",
-            "Hideout Near Kitchen Crate 1" : "Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot)",
-            "Hideout Near Kitchen Crate 2" : "True",
-            "Hideout Near Kitchen Crate 3" : "True",
-            "Hideout Near Kitchen Crate 4" : "True",
-            "Hideout Near Kitchen Crate 5" : "True",
+            "Hideout Near Kitchen Crate 1" : "can_bonk_crate and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot))",
+            "Hideout Near Kitchen Crate 2" : "can_bonk_crate",
+            "Hideout Near Kitchen Crate 3" : "can_bonk_crate",
+            "Hideout Near Kitchen Crate 4" : "can_bonk_crate",
+            "Hideout Near Kitchen Crate 5" : "can_bonk_crate",
             "Hideout 4 Torch Jail Pot 1" : "True",
             "Hideout 4 Torch Jail Pot 2" : "True",
-            "Hideout 3 Torch Crate" : "(Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot) or can_use(Hover_Boots) or logic_gerudo_kitchen)",
+            "Hideout 3 Torch Crate" : "can_bonk_crate and (Gerudo_Membership_Card or can_use(Bow) or can_use(Hookshot) or can_use(Hover_Boots) or logic_gerudo_kitchen)",
             "Hideout 2 Torch Jail Pot 1" : "True",
             "Hideout 2 Torch Jail Pot 2" : "True",
             "Hideout 2 Torch Jail Pot 3" : "True",
@@ -675,8 +675,8 @@
             "Hideout 2 Torch Jail In Cell Pot 2" : "True",
             "Hideout 2 Torch Jail In Cell Pot 3" : "True",
             "Hideout 2 Torch Jail In Cell Pot 4" : "True",
-            "Hideout 2 Torch Crate 1" : "True",
-            "Hideout 2 Torch Crate 2" : "True"
+            "Hideout 2 Torch Crate 1" : "can_bonk_crate",
+            "Hideout 2 Torch Crate 2" : "can_bonk_crate"
         },
         "exits": {
             "GV Fortress Side": "True",
@@ -701,7 +701,7 @@
         "scene": "Haunted Wasteland",
         "hint": "the Haunted Wasteland",
         "locations": {
-            "Wasteland Crate Before Quicksand": "True"
+            "Wasteland Crate Before Quicksand": "can_bonk_crate"
         },
         "exits": {
             "GF Outside Gate": "True",
@@ -723,9 +723,9 @@
             "Wasteland Near GS Pot 1" : "True",
             "Wasteland Near GS Pot 2" : "True",
             "Wasteland Near GS Pot 3" : "True",
-            "Wasteland Crate After Quicksand 1" : "True",
-            "Wasteland Crate After Quicksand 2" : "True",
-            "Wasteland Crate After Quicksand 3" : "True",
+            "Wasteland Crate After Quicksand 1" : "can_bonk_crate",
+            "Wasteland Crate After Quicksand 2" : "can_bonk_crate",
+            "Wasteland Crate After Quicksand 3" : "can_bonk_crate",
             "Fairy Pot": "has_bottle",
             "Nut Pot": "True"
         },
@@ -741,7 +741,7 @@
         "scene": "Haunted Wasteland",
         "hint": "the Haunted Wasteland",
         "locations" : {
-            "Wasteland Crate Near Colossus" : "True"
+            "Wasteland Crate Near Colossus" : "can_bonk_crate"
         },
         "exits": {
             "Desert Colossus": "True",
@@ -824,11 +824,11 @@
             "Market Back Alley": "is_child"
         },
         "locations": {
-            "Market Night Crate Red Rupee" : "is_child and at_night",
-            "Market Night Crate Green Rupee 1" : "is_child and at_night",
-            "Market Night Crate Green Rupee 2" : "is_child and at_night",
-            "Market Night Crate Green Rupee 3" : "is_child and at_night",
-            "Market Richards House Crate Rupee 1" : "is_child"
+            "Market Night Crate Red Rupee" : "is_child and at_night and can_bonk_crate",
+            "Market Night Crate Green Rupee 1" : "is_child and at_night and can_bonk_crate",
+            "Market Night Crate Green Rupee 2" : "is_child and at_night and can_bonk_crate",
+            "Market Night Crate Green Rupee 3" : "is_child and at_night and can_bonk_crate",
+            "Market Richards House Crate Rupee 1" : "is_child and can_bonk_crate"
         }
     },
     {
@@ -983,7 +983,7 @@
             "Market 10 Big Poes": "
                 is_adult and 
                 (Big_Poe or (Bottle_with_Big_Poe, big_poe_count))",
-            "Market Guard House Crate Rupee" : "is_child",
+            "Market Guard House Crate Rupee" : "can_bonk_crate and is_child",
             "Market Guard House Child Pot 1": "is_child", 
             "Market Guard House Child Pot 2": "is_child", 
             "Market Guard House Child Pot 3": "is_child", 
@@ -1173,8 +1173,8 @@
             "Kak Near Guards House Pot 3" : "is_child",
             "Kak Near Odd Medicine Building Pot 1" : "is_child",
             "Kak Near Odd Medicine Building Pot 2" : "is_child",
-            "Kak Adult Crate Red Rupee": "is_adult",
-            "Kak Adult Crate Arrows" : "is_adult"
+            "Kak Adult Crate Red Rupee": "is_adult and can_bonk_crate",
+            "Kak Adult Crate Arrows" : "is_adult and can_bonk_crate"
         },
         "exits": {
             "Hyrule Field": "True",
@@ -1623,7 +1623,7 @@
             "GC Upper Staircase Pot 2": "True",
             "GC Upper Staircase Pot 3": "True",
             "GC Medigoron Pot": "can_blast_or_smash or Progressive_Strength_Upgrade",
-            "GC Boulder Maze Crate as Adult" : "is_adult and (can_blast_or_smash or can_use(Silver_Gauntlets))",
+            "GC Boulder Maze Crate as Adult" : "can_bonk_crate and is_adult and (can_blast_or_smash or can_use(Silver_Gauntlets))",
             "GC GS Boulder Maze": "is_child and has_explosives",
             "GC GS Center Platform": "is_adult",
             "GC Maze Gossip Stone": "
