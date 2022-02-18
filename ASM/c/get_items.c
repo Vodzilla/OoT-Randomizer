@@ -12,6 +12,7 @@ override_t cfg_item_overrides[1536] = {0};
 int item_overrides_count = 0;
 
 override_t pending_item_queue[3] = {0};
+override_t outgoing_item_queue[5] = {0};
 z64_actor_t *dummy_actor = NULL;
 
 // Co-op state
@@ -71,19 +72,19 @@ override_key_t get_override_search_key(z64_actor_t *actor, uint8_t scene, uint8_
 	{
 		// Override heart pieces, keys, red, blue, green rupees, and recovery hearts
 		int collectable_type = actor->variable & 0xFF;
-		if(collectable_type == 0x12) //don't override fairies
-			return (override_key_t){.all=0};
+		if (collectable_type == 0x12) // don't override fairies
+			return (override_key_t){.all = 0};
 		/*if (collectable_type != 0x06 && collectable_type != 0x11 && collectable_type != 0x03 && collectable_type != 2 && collectable_type != 0x01 && collectable_type != 0x00 && collectable_type != 13)
 		{
 			return (override_key_t){.all = 0};
 		}*/
-		//Check if it was a dropped collectable and use a separate override for that
-		EnItem00* item = (EnItem00*)actor;
+		// Check if it was a dropped collectable and use a separate override for that
+		EnItem00 *item = (EnItem00 *)actor;
 		uint8_t flag = ((item->actor.dropFlag & 0x06) << 5) + item->collectibleFlag;
-		if(item->actor.dropFlag)
+		if (item->actor.dropFlag)
 		{
-			//Use the same override flags for the pots in ganon's tower
-			if(scene == 0x0A)
+			// Use the same override flags for the pots in ganon's tower
+			if (scene == 0x0A)
 				scene = 0x19;
 			return (override_key_t){
 				.scene = scene,
@@ -95,8 +96,7 @@ override_key_t get_override_search_key(z64_actor_t *actor, uint8_t scene, uint8_
 		return (override_key_t){
 			.scene = scene,
 			.type = OVR_COLLECTABLE,
-			.flag = flag
-		};
+			.flag = flag};
 	}
 	else if (actor->actor_id == 0x19C)
 	{
@@ -159,22 +159,23 @@ override_t lookup_override(z64_actor_t *actor, uint8_t scene, uint8_t item_id)
 	return lookup_override_by_key(search_key);
 }
 
-void activate_override(override_t override) {
-    uint16_t resolved_item_id = resolve_upgrades(override.value.item_id);
-    item_row_t *item_row = get_item_row(resolved_item_id);
+void activate_override(override_t override)
+{
+	uint16_t resolved_item_id = resolve_upgrades(override.value.item_id);
+	item_row_t *item_row = get_item_row(resolved_item_id);
 
-    active_override = override;
-    if (resolved_item_id == 0xCA)
-        active_override_is_outgoing = 2; // Send to everyone
-    else
-        active_override_is_outgoing = override.value.player != PLAYER_ID;
-    active_item_row = item_row;
-    active_item_action_id = item_row->action_id;
-    active_item_text_id = item_row->text_id;
-    active_item_object_id = item_row->object_id;
-    active_item_graphic_id = item_row->graphic_id;
-    active_item_fast_chest = item_row->chest_type == BROWN_CHEST || item_row->chest_type == SILVER_CHEST || item_row->chest_type == SKULL_CHEST_SMALL;
-    PLAYER_NAME_ID = override.value.player;
+	active_override = override;
+	if (resolved_item_id == 0xCA)
+		active_override_is_outgoing = 2; // Send to everyone
+	else
+		active_override_is_outgoing = override.value.player != PLAYER_ID;
+	active_item_row = item_row;
+	active_item_action_id = item_row->action_id;
+	active_item_text_id = item_row->text_id;
+	active_item_object_id = item_row->object_id;
+	active_item_graphic_id = item_row->graphic_id;
+	active_item_fast_chest = item_row->chest_type == BROWN_CHEST || item_row->chest_type == SILVER_CHEST || item_row->chest_type == SKULL_CHEST_SMALL;
+	PLAYER_NAME_ID = override.value.player;
 }
 
 void clear_override()
@@ -189,11 +190,53 @@ void clear_override()
 	active_item_fast_chest = 0;
 }
 
+// Actually set the outgoing values used by the MW script to send the item.
 void set_outgoing_override(override_t *override)
 {
 	OUTGOING_KEY = override->key;
 	OUTGOING_ITEM = override->value.item_id;
 	OUTGOING_PLAYER = override->value.player;
+}
+
+// Send out an item from the outgoing queue only if we're not already trying to.
+void process_outgoing_overrides()
+{
+	// Check if we're already sending out an item.
+	if (OUTGOING_KEY.all == 0)
+	{
+		// Loop through our outgoing item queue to see if we have any items to send.
+		for (int i = 0; i < array_size(outgoing_item_queue); i++)
+		{
+			// If we do
+			if (outgoing_item_queue[i].key.all != 0)
+			{
+				// Send the item
+				set_outgoing_override(&outgoing_item_queue[i]);
+				// And remove it from the queue.
+				outgoing_item_queue[i].key.all = 0;
+				outgoing_item_queue[i].value.all = 0;
+				break;
+			}
+		}
+	}
+}
+
+// Call this function to send an outgoing item instead of using set_outgoing_override directly.
+void push_outgoing_override(override_t *override)
+{
+	for (int i = 0; i < array_size(outgoing_item_queue); i++)
+	{
+		if (outgoing_item_queue[i].key.all == 0)
+		{
+			outgoing_item_queue[i] = *override;
+			break;
+		}
+		if (pending_item_queue[i].key.all == override->key.all)
+		{
+			// Prevent duplicate entries
+			break;
+		}
+	}
 }
 
 void push_pending_item(override_t override)
@@ -293,7 +336,7 @@ void after_item_received()
 
 	if (active_override_is_outgoing)
 	{
-		set_outgoing_override(&active_override);
+		push_outgoing_override(&active_override);
 	}
 
 	if (key.all == pending_item_queue[0].key.all)
@@ -421,12 +464,11 @@ void get_item(z64_actor_t *from_actor, z64_link_t *link, int8_t incoming_item_id
 #define GIVEITEM_MAGIC_LARGE 121
 #define GIVEITEM_RUPEE_PURPLE 135
 
-
-#define LEN_ITEMS  21
+#define LEN_ITEMS 21
 uint8_t items[] = {
-	GIVEITEM_RUPEE_GREEN, 
-	GIVEITEM_RUPEE_BLUE, 
-	GIVEITEM_RUPEE_RED, 
+	GIVEITEM_RUPEE_GREEN,
+	GIVEITEM_RUPEE_BLUE,
+	GIVEITEM_RUPEE_RED,
 	GIVEITEM_HEART,
 	GIVEITEM_BOMBS_5,
 	GIVEITEM_ARROWS_SINGLE,
@@ -446,26 +488,27 @@ uint8_t items[] = {
 	0,
 	GIVEITEM_RUPEE_PURPLE};
 
-EnItem00* collectible_mutex = 0;
+EnItem00 *collectible_mutex = 0;
 
 override_t collectible_override;
 
-void reset_collectible_mutex(){
+void reset_collectible_mutex()
+{
 	collectible_mutex = NULL;
 }
 
-//New EnItem00 function that freezes link until the messagebox is closed. Similar to how skulls work.
+// New EnItem00 function that freezes link until the messagebox is closed. Similar to how skulls work.
 void Collectible_WaitForMessageBox(EnItem00 *this, z64_game_t *game)
 {
 
-	//Check message state:
+	// Check message state:
 	if (z64_MessageGetState(((uint8_t *)(&z64_game)) + 0x20D8) == 0)
 	{
-		//Make sure link was frozen for the minimum amount of time
+		// Make sure link was frozen for the minimum amount of time
 		if (this->timeToLive == 0)
 		{
-			reset_collectible_mutex(); //release the mutex
-			//Kill the actor
+			reset_collectible_mutex(); // release the mutex
+			// Kill the actor
 			z64_ActorKill(&(this->actor));
 		}
 	}
@@ -478,33 +521,33 @@ void Collectible_WaitForMessageBox(EnItem00 *this, z64_game_t *game)
 uint32_t collectible_override_flags[202] = {0x00};
 uint32_t dropped_collectible_override_flags[808] = {0x00};
 
-uint8_t get_extended_flag(EnItem00* item00)
+uint8_t get_extended_flag(EnItem00 *item00)
 {
 	return ((item00->actor.dropFlag & 0xFE) << 5) + item00->collectibleFlag;
 }
 
-bool Get_CollectibleOverrideFlag(EnItem00* item00)
+bool Get_CollectibleOverrideFlag(EnItem00 *item00)
 {
-	uint32_t* flag_table = &collectible_override_flags;
+	uint32_t *flag_table = &collectible_override_flags;
 	uint16_t scene = z64_game.scene_index;
 	bool dropFlag = item00->actor.dropFlag & 0x0001;
 
-	if(item00->actor.variable == ITEM00_HEART_PIECE || item00->actor.variable == ITEM00_SMALL_KEY || item00->actor.variable == ITEM00_HEART_CONTAINER)
+	if (item00->actor.variable == ITEM00_HEART_PIECE || item00->actor.variable == ITEM00_SMALL_KEY || item00->actor.variable == ITEM00_HEART_CONTAINER)
 	{
 		return z64_Flags_GetCollectible(&z64_game, item00->collectibleFlag) > 0;
 	}
 
 	uint16_t extended_flag = get_extended_flag(item00);
-	if(dropFlag) //we set this if it's dropped
+	if (dropFlag) // we set this if it's dropped
 	{
 		flag_table = &dropped_collectible_override_flags;
-		if(scene == 0x0A)
+		if (scene == 0x0A)
 			scene = 0x19;
 	}
 
-	//uint16_t extended_flag = item00->collectibleFlag; //Update this to make the flag bigger
+	// uint16_t extended_flag = item00->collectibleFlag; //Update this to make the flag bigger
 
-	return (flag_table[(dropFlag ? 8 : 2)*scene + (extended_flag/0x20)] & (1 << (extended_flag % 0x20)));
+	return (flag_table[(dropFlag ? 8 : 2) * scene + (extended_flag / 0x20)] & (1 << (extended_flag % 0x20)));
 	/*
 	if(item00->collectibleFlag < 0x20)
 	{
@@ -514,25 +557,23 @@ bool Get_CollectibleOverrideFlag(EnItem00* item00)
 	*/
 }
 
-void Set_CollectibleOverrideFlag(EnItem00* item00)
+void Set_CollectibleOverrideFlag(EnItem00 *item00)
 {
-	uint32_t* flag_table = &collectible_override_flags;
+	uint32_t *flag_table = &collectible_override_flags;
 	uint16_t scene = z64_game.scene_index;
 	bool dropFlag = item00->actor.dropFlag & 0x0001;
 	uint16_t extended_flag = get_extended_flag(item00);
-	if(dropFlag)
+	if (dropFlag)
 	{
 		flag_table = &dropped_collectible_override_flags;
-		
-		if(scene == 0x0A)
+
+		if (scene == 0x0A)
 			scene = 0x19;
-		
 	}
-	flag_table[(dropFlag ? 8 : 2)*scene + (extended_flag/0x20)] |= (1 << (extended_flag % 0x20));
+	flag_table[(dropFlag ? 8 : 2) * scene + (extended_flag / 0x20)] |= (1 << (extended_flag % 0x20));
 
-	//uint16_t extended_flag = item00->collectibleFlag; //Update this to make the flag bigger
+	// uint16_t extended_flag = item00->collectibleFlag; //Update this to make the flag bigger
 
-	
 	return;
 	/*if(item00->collectibleFlag < 0x20)
 	{
@@ -544,7 +585,7 @@ void Set_CollectibleOverrideFlag(EnItem00* item00)
 	}*/
 }
 
-bool should_override_collectible(EnItem00* item00)
+bool should_override_collectible(EnItem00 *item00)
 {
 	override_t override = lookup_override(item00, z64_game.scene_index, 0);
 	if (override.key.all == 0 || Get_CollectibleOverrideFlag(item00))
@@ -554,102 +595,108 @@ bool should_override_collectible(EnItem00* item00)
 	return 1;
 }
 
-bool Item00_KillActorIfFlagIsSet(z64_actor_t* actor)
+bool Item00_KillActorIfFlagIsSet(z64_actor_t *actor)
 {
-	EnItem00* this = (EnItem00*)actor;
-	if(should_override_collectible(this))
+	EnItem00 *this = (EnItem00 *)actor;
+	if (should_override_collectible(this))
 		return 0;
-	if(get_extended_flag(this) >= 0x40)
+	if (get_extended_flag(this) >= 0x40)
 		return 0;
-	if(z64_Flags_GetCollectible(&z64_game, this->collectibleFlag))
+	if (z64_Flags_GetCollectible(&z64_game, this->collectibleFlag))
 	{
 		z64_ActorKill(actor);
 		return 1;
 	}
-	
 }
 
-//Hack for keeping freestanding overrides alive when they spawn from crates/pots.
-void Item00_KeepAlive(EnItem00* item00)
+// Hack for keeping freestanding overrides alive when they spawn from crates/pots.
+void Item00_KeepAlive(EnItem00 *item00)
 {
-	if(should_override_collectible(item00) && (item00->actionFunc != (EnItem00ActionFunc*)0x800127E0))
+	if (should_override_collectible(item00) && (item00->actionFunc != (EnItem00ActionFunc *)0x800127E0))
 	{
-		if(item00->unk_156)
+		if (item00->unk_156)
 			item00->timeToLive = 0xFF;
 	}
 	else
 	{
-		if(item00->timeToLive > 0)
+		if (item00->timeToLive > 0)
 			item00->timeToLive--;
 	}
 }
 
 int16_t get_override_drop_id(int16_t dropId, uint16_t params)
 {
-	//make our a dummy enitem00 with enough info to get the override
+	// make our a dummy enitem00 with enough info to get the override
 	EnItem00 dummy;
 	dummy.collectibleFlag = (params & 0x3F00) >> 8;
 	dummy.actor.actor_id = 0x15;
 	dummy.actor.dropFlag = 1;
 	dummy.actor.dropFlag |= (params & 0x00C0) >> 5;
-	if(should_override_collectible(&dummy) && 
+	if (should_override_collectible(&dummy) &&
 		(dropId != ITEM00_HEART_PIECE) &&
 		(dropId != ITEM00_SMALL_KEY) &&
 		(dropId != ITEM00_HEART_CONTAINER) &&
 		(dropId != ITEM00_SHIELD_DEKU) &&
 		(dropId != ITEM00_SHIELD_HYLIAN) &&
 		(dropId != ITEM00_TUNIC_ZORA) &&
-		(dropId != ITEM00_TUNIC_GORON) )
+		(dropId != ITEM00_TUNIC_GORON))
 	{
 		dropId = ITEM00_RUPEE_GREEN;
 		return dropId;
 	}
 
-	if (LINK_IS_ADULT) {
-        if (dropId == ITEM00_SEEDS) {
-            dropId = ITEM00_ARROWS_SMALL;
-        } else if (dropId == ITEM00_STICK) {
-            dropId = ITEM00_RUPEE_GREEN;
-        }
-    } else {
-        if (dropId == ITEM00_ARROWS_SMALL || dropId == ITEM00_ARROWS_MEDIUM || dropId == ITEM00_ARROWS_LARGE) {
-            dropId = ITEM00_SEEDS;
-        }
-    }
+	if (LINK_IS_ADULT)
+	{
+		if (dropId == ITEM00_SEEDS)
+		{
+			dropId = ITEM00_ARROWS_SMALL;
+		}
+		else if (dropId == ITEM00_STICK)
+		{
+			dropId = ITEM00_RUPEE_GREEN;
+		}
+	}
+	else
+	{
+		if (dropId == ITEM00_ARROWS_SMALL || dropId == ITEM00_ARROWS_MEDIUM || dropId == ITEM00_ARROWS_LARGE)
+		{
+			dropId = ITEM00_SEEDS;
+		}
+	}
 
-    // This is convoluted but it seems like it must be a single condition to match
-	if(((dropId == ITEM00_BOMBS_A) || (dropId == ITEM00_BOMBS_SPECIAL) || (dropId == ITEM00_BOMBS_B)) && (z64_file.items[ITEM_BOMB] == -1))
+	// This is convoluted but it seems like it must be a single condition to match
+	if (((dropId == ITEM00_BOMBS_A) || (dropId == ITEM00_BOMBS_SPECIAL) || (dropId == ITEM00_BOMBS_B)) && (z64_file.items[ITEM_BOMB] == -1))
 		return -1;
-	if(((dropId == ITEM00_ARROWS_SMALL) || (dropId == ITEM00_ARROWS_MEDIUM) || (dropId == ITEM00_ARROWS_LARGE)) && (z64_file.items[ITEM_BOW] == -1))
+	if (((dropId == ITEM00_ARROWS_SMALL) || (dropId == ITEM00_ARROWS_MEDIUM) || (dropId == ITEM00_ARROWS_LARGE)) && (z64_file.items[ITEM_BOW] == -1))
 		return -1;
-	if(((dropId == ITEM00_MAGIC_LARGE)  || (dropId == ITEM00_MAGIC_SMALL)) && (z64_file.magic_capacity_set == 0))
+	if (((dropId == ITEM00_MAGIC_LARGE) || (dropId == ITEM00_MAGIC_SMALL)) && (z64_file.magic_capacity_set == 0))
 		return -1;
-    if(((dropId == ITEM00_SEEDS)) && (z64_file.items[ITEM_SLINGSHOT] == -1)) {
-        return -1;
-    }
+	if (((dropId == ITEM00_SEEDS)) && (z64_file.items[ITEM_SLINGSHOT] == -1))
+	{
+		return -1;
+	}
 
+	if ((dropId == ITEM00_HEART) && (z64_file.energy_capacity == z64_file.energy))
+	{
+		return ITEM00_RUPEE_GREEN;
+	}
 
-    if ((dropId == ITEM00_HEART) && (z64_file.energy_capacity == z64_file.energy)) {
-        return ITEM00_RUPEE_GREEN;
-    }
-
-    return dropId;
+	return dropId;
 }
 
-//Override hack for freestanding collectibles (green, blue, red rupees, recovery hearts)
+// Override hack for freestanding collectibles (green, blue, red rupees, recovery hearts)
 uint8_t item_give_collectible(uint8_t item, z64_link_t *link, z64_actor_t *from_actor)
 {
-	
+
 	EnItem00 *pItem = (EnItem00 *)from_actor;
-	
+
 	override_t override = lookup_override(from_actor, z64_game.scene_index, 0);
 
-
-	//Check if we should override the item. We have logic in the randomizer to not include excluded items in the override table.
+	// Check if we should override the item. We have logic in the randomizer to not include excluded items in the override table.
 	if (override.key.all == 0 || Get_CollectibleOverrideFlag(pItem))
 	{
-		z64_GiveItem(&z64_game, items[item]); //Give the regular item (this is what is normally called by the non-hacked function)
-		if(get_extended_flag(pItem) > 0x3F) //If our extended collectible flag is outside the range of normal collectibles, set the flag to 0 so it doesn't write something wrong. We should only ever be using this for things that normally are 0 anyway
+		z64_GiveItem(&z64_game, items[item]); // Give the regular item (this is what is normally called by the non-hacked function)
+		if (get_extended_flag(pItem) > 0x3F)  // If our extended collectible flag is outside the range of normal collectibles, set the flag to 0 so it doesn't write something wrong. We should only ever be using this for things that normally are 0 anyway
 		{
 			pItem->collectibleFlag = 0;
 			pItem->actor.dropFlag &= 0x01;
@@ -657,73 +704,87 @@ uint8_t item_give_collectible(uint8_t item, z64_link_t *link, z64_actor_t *from_
 		return 0;
 	}
 
-
-
-	if (!collectible_mutex) //Check our mutex so that only one collectible can run at a time (if 2 run on the same frame you lose the message).
+	if (!collectible_mutex) // Check our mutex so that only one collectible can run at a time (if 2 run on the same frame you lose the message).
 	{
 		collectible_mutex = from_actor;
 		collectible_override = override;
-		//resolve upgrades and figure out what item to give.
+		// resolve upgrades and figure out what item to give.
 		uint16_t item_id = collectible_override.value.item_id;
 		uint16_t resolved_item_id = resolve_upgrades(item_id);
 		item_row_t *item_row = get_item_row(resolved_item_id);
 
-		//Set the collectible flag
+		// Set the collectible flag
 		Set_CollectibleOverrideFlag(pItem);
-		if((item == ITEM00_HEART_PIECE) || (item == ITEM00_SMALL_KEY)) //Don't allow heart pieces or small keys to be collected a second time. This is really just for the "Drop" types.
+		if ((item == ITEM00_HEART_PIECE) || (item == ITEM00_SMALL_KEY)) // Don't allow heart pieces or small keys to be collected a second time. This is really just for the "Drop" types.
 			z64_SetCollectibleFlags(&z64_game, pItem->collectibleFlag);
 		item_id = collectible_override.value.item_id;
 		uint8_t player = collectible_override.value.player;
 
-
 		PLAYER_NAME_ID = player;
 
-		//If it's a junk item (aka a regular collectible) don't do the fanfare music/message box.
-		if(item_row->collectible > 0) //Item is one of our base collectibles
+		// If it's a junk item (aka a regular collectible) don't do the fanfare music/message box.
+		if (item_row->collectible > 0) // Item is one of our base collectibles
 		{
 			collectible_mutex = NULL;
 			pItem->actor.health = 1;
-			z64_GiveItem(&z64_game, item_row->action_id);
-			//pItem->actor.variable = item_row->collectible; 
-			//Pick the correct sound effect for rupees or other items.
+			// Give the item to the right place
+			if (resolved_item_id == 0xCA)
+			{
+				// Send triforce to everyone
+				push_outgoing_override(&collectible_override);
+				z64_GiveItem(&z64_game, item_row->action_id);
+				call_effect_function(item_row);
+			}
+			else if (player != PLAYER_ID)
+			{
+				push_outgoing_override(&collectible_override);
+			}
+			else
+			{
+				// push_pending_item(override);
+				z64_GiveItem(&z64_game, item_row->action_id);
+				call_effect_function(item_row);
+			}
+			// pItem->actor.variable = item_row->collectible;
+			// Pick the correct sound effect for rupees or other items.
 			uint16_t sfxId = NA_SE_SY_GET_ITEM;
-			if(item_row->collectible <= ITEM00_RUPEE_RED || item_row->collectible == ITEM00_RUPEE_PURPLE || item_row->collectible == ITEM00_RUPEE_ORANGE)
+			if (item_row->collectible <= ITEM00_RUPEE_RED || item_row->collectible == ITEM00_RUPEE_PURPLE || item_row->collectible == ITEM00_RUPEE_ORANGE)
 				sfxId = NA_SE_SY_GET_RUPY;
 			z64_Audio_PlaySoundGeneral(sfxId, 0x80104394, 4, 0x801043A0, 0x801043A0, 0x801043A8);
-			return 3; //Return to the original function so it can draw the collectible above our head.
+			return 3; // Return to the original function so it can draw the collectible above our head.
 		}
 
-		//draw message box and play get item sound (like when a skull is picked up)
+		// draw message box and play get item sound (like when a skull is picked up)
 		z64_Audio_PlayFanFare(NA_BGM_SMALL_ITEM_GET);
 
 		z64_DisplayTextbox(&z64_game, item_row->text_id, 0);
 
-		//Set up
-		pItem->timeToLive = 15; //unk_15A is a frame timer that is decremented each frame by the main actor code.
-		pItem->unk_154 = 35; //not quite sure but this is what the vanilla game does.
+		// Set up
+		pItem->timeToLive = 15; // unk_15A is a frame timer that is decremented each frame by the main actor code.
+		pItem->unk_154 = 35;	// not quite sure but this is what the vanilla game does.
 		pItem->getItemId = 0;
-		z64_link.common.frozen = 10;					   //freeze link (like when picking up a skull)
-		pItem->actionFunc = Collectible_WaitForMessageBox; //Set up the EnItem00 action function to wait for the message box to close.
-		
-		//Give the item to the right place
+		z64_link.common.frozen = 10;					   // freeze link (like when picking up a skull)
+		pItem->actionFunc = Collectible_WaitForMessageBox; // Set up the EnItem00 action function to wait for the message box to close.
+
+		// Give the item to the right place
 		if (resolved_item_id == 0xCA)
 		{
 			// Send triforce to everyone
-			set_outgoing_override(&collectible_override);
+			push_outgoing_override(&collectible_override);
 			z64_GiveItem(&z64_game, item_row->action_id);
 			call_effect_function(item_row);
 		}
 		else if (player != PLAYER_ID)
 		{
-			set_outgoing_override(&collectible_override);
+			push_outgoing_override(&collectible_override);
 		}
 		else
 		{
-			//push_pending_item(override);
+			// push_pending_item(override);
 			z64_GiveItem(&z64_game, item_row->action_id);
 			call_effect_function(item_row);
 		}
-		
+
 		return 1;
 	}
 	return 2; //
@@ -757,13 +818,13 @@ void get_skulltula_token(z64_actor_t *token_actor)
 	if (resolved_item_id == 0xCA)
 	{
 		// Send triforce to everyone
-		set_outgoing_override(&override);
+		push_outgoing_override(&override);
 		z64_GiveItem(&z64_game, item_row->action_id);
 		call_effect_function(item_row);
 	}
 	else if (player != PLAYER_ID)
 	{
-		set_outgoing_override(&override);
+		push_outgoing_override(&override);
 	}
 	else
 	{

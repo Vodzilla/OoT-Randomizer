@@ -6,9 +6,11 @@
 
 void item_overrides_init();
 void handle_pending_items();
+void process_outgoing_overrides();
 void push_delayed_item(uint8_t flag);
 void pop_pending_item();
-enum override_type {
+enum override_type
+{
     OVR_BASE_ITEM = 0,
     OVR_CHEST = 1,
     OVR_COLLECTABLE = 2,
@@ -18,33 +20,38 @@ enum override_type {
     OVR_DROPPEDCOLLECTABLE = 6
 };
 
-typedef union {
+typedef union
+{
     uint32_t all;
-    struct {
-        char    pad_;
+    struct
+    {
+        char pad_;
         uint8_t scene;
         uint8_t type;
         uint8_t flag;
     };
 } override_key_t;
 
-typedef union {
+typedef union
+{
     uint32_t all;
-    struct {
+    struct
+    {
         uint16_t item_id;
-        uint8_t  player;
-        uint8_t  looks_like_item_id;
+        uint8_t player;
+        uint8_t looks_like_item_id;
     };
 } override_value_t;
 
-typedef struct {
-    override_key_t   key;
+typedef struct
+{
+    override_key_t key;
     override_value_t value;
 } override_t;
 
 override_t lookup_override_by_key(override_key_t key);
 override_t lookup_override(z64_actor_t *actor, uint8_t scene, uint8_t item_id);
-bool should_override_collectible(EnItem00* this);
+bool should_override_collectible(EnItem00 *this);
 void Collectible_WaitForMessageBox(EnItem00 *this, z64_game_t *game);
 void reset_collectible_mutex();
 
