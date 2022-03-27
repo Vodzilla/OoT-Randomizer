@@ -659,7 +659,7 @@ uint8_t item_give_collectible(uint8_t item, z64_link_t *link, z64_actor_t *from_
 
 
 
-	if (!collectible_mutex) //Check our mutex so that only one collectible can run at a time (if 2 run on the same frame you lose the message).
+	if (!collectible_mutex && pItem->actor.main_proc != NULL) //Check our mutex so that only one collectible can run at a time (if 2 run on the same frame you lose the message). Also make sure that this actor hasn't already been killed.
 	{
 		collectible_mutex = from_actor;
 		collectible_override = override;
