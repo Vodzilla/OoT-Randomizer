@@ -25,6 +25,7 @@ void c_init() {
     gfx_init();
     text_init();
     item_overrides_init();
+    override_flags_init();
     models_init();
     init_textures();
 }

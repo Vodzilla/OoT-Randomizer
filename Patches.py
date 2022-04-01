@@ -22,6 +22,7 @@ from Messages import read_messages, update_message_by_id, read_shop_items, updat
 from OcarinaSongs import replace_songs
 from MQ import patch_files, File, update_dmadata, insert_space, add_relocations
 from SaveContext import SaveContext, Scenes, FlagType
+from SceneFlags import get_scene_flag_table, get_scene_flag_table_bytes
 from texture_util import ci4_texture_apply_rgba16patch_and_convert_to_ci8, rgba16_patch, rgba16_from_file
 import StartingItems
 
@@ -1544,6 +1545,13 @@ def patch_rom(spoiler:Spoiler, world:World, rom:Rom):
         for location in smallcrate_locations:
             patch_small_crate(location, rom)
             
+    # Write flag table data
+    scene_flag_table = get_scene_flag_table(world)
+    freestanding_flag_table_bytes, drop_flag_table_bytes, num_freestanding_flags, num_drop_flags = get_scene_flag_table_bytes(scene_flag_table)
+    rom.write_bytes(rom.sym('collectible_scene_flags_table'), freestanding_flag_table_bytes)
+    rom.write_bytes(rom.sym('dropped_collectible_scene_flags_table'), drop_flag_table_bytes)
+    rom.write_bytes(rom.sym('num_override_flags'), num_freestanding_flags.to_bytes(2, 'big'))
+    rom.write_bytes(rom.sym('num_drop_override_flags'), num_drop_flags.to_bytes(2, 'big'))
 
     # Write item overrides
     override_table = get_override_table(world)

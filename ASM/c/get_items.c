@@ -35,6 +35,25 @@ uint32_t active_item_fast_chest = 0;
 
 uint8_t satisified_pending_frames = 0;
 
+//These tables contain the offset (in words) of the start of the variable-length scene flags in the flag override flag tables for a particular scene.
+uint8_t collectible_scene_flags_table[101];
+uint8_t dropped_collectible_scene_flags_table[101];
+
+//Total amount of memory required for each flag table (in words).
+uint16_t num_override_flags;
+uint16_t num_drop_override_flags;
+
+//Pointer to a variable length array that will contain the collectible flags for each scene. Index of each scene in the array stored in the flags_tables above.
+uint32_t* collectible_override_flags;
+uint32_t* dropped_collectible_override_flags;
+
+//Initialize the override flag tables on the heap.
+void override_flags_init()
+{
+	collectible_override_flags = heap_alloc(4*num_override_flags);
+	dropped_collectible_override_flags = heap_alloc(4*num_drop_override_flags);
+}
+
 void item_overrides_init()
 {
 	while (cfg_item_overrides[item_overrides_count].key.all != 0)
@@ -475,8 +494,6 @@ void Collectible_WaitForMessageBox(EnItem00 *this, z64_game_t *game)
 	}
 }
 
-uint32_t collectible_override_flags[202] = {0x00};
-uint32_t dropped_collectible_override_flags[808] = {0x00};
 
 uint8_t get_extended_flag(EnItem00* item00)
 {
@@ -485,7 +502,8 @@ uint8_t get_extended_flag(EnItem00* item00)
 
 bool Get_CollectibleOverrideFlag(EnItem00* item00)
 {
-	uint32_t* flag_table = &collectible_override_flags;
+	uint32_t* flag_table = collectible_override_flags;
+	uint8_t* scene_table = &collectible_scene_flags_table;
 	uint16_t scene = z64_game.scene_index;
 	bool dropFlag = item00->actor.dropFlag & 0x0001;
 
@@ -497,14 +515,16 @@ bool Get_CollectibleOverrideFlag(EnItem00* item00)
 	uint16_t extended_flag = get_extended_flag(item00);
 	if(dropFlag) //we set this if it's dropped
 	{
-		flag_table = &dropped_collectible_override_flags;
+		flag_table = dropped_collectible_override_flags;
+		scene_table = &dropped_collectible_scene_flags_table;
 		if(scene == 0x0A)
 			scene = 0x19;
 	}
 
 	//uint16_t extended_flag = item00->collectibleFlag; //Update this to make the flag bigger
 
-	return (flag_table[(dropFlag ? 8 : 2)*scene + (extended_flag/0x20)] & (1 << (extended_flag % 0x20)));
+	
+	return (flag_table[scene_table[scene] + (extended_flag/0x20)] & (1 << (extended_flag % 0x20)));
 	/*
 	if(item00->collectibleFlag < 0x20)
 	{
@@ -516,19 +536,20 @@ bool Get_CollectibleOverrideFlag(EnItem00* item00)
 
 void Set_CollectibleOverrideFlag(EnItem00* item00)
 {
-	uint32_t* flag_table = &collectible_override_flags;
+	uint32_t* flag_table = collectible_override_flags;
+	uint8_t* scene_table = &collectible_scene_flags_table;
 	uint16_t scene = z64_game.scene_index;
 	bool dropFlag = item00->actor.dropFlag & 0x0001;
 	uint16_t extended_flag = get_extended_flag(item00);
 	if(dropFlag)
 	{
-		flag_table = &dropped_collectible_override_flags;
-		
+		flag_table = dropped_collectible_override_flags;
+		scene_table = &dropped_collectible_scene_flags_table;
 		if(scene == 0x0A)
 			scene = 0x19;
 		
 	}
-	flag_table[(dropFlag ? 8 : 2)*scene + (extended_flag/0x20)] |= (1 << (extended_flag % 0x20));
+	flag_table[scene_table[scene] + (extended_flag/0x20)] |= (1 << (extended_flag % 0x20));
 
 	//uint16_t extended_flag = item00->collectibleFlag; //Update this to make the flag bigger
 

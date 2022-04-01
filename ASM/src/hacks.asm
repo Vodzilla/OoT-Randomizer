@@ -333,6 +333,7 @@ Gameplay_InitSkybox:
 
 ; Hack save slot table offsets to only use 2 saves
 ; save slot table is stored at B71E60 in ROM
+.headersize( 0x800FBF00 - 0xB71E60)
 .orga 0xB71E60
 .halfword 0x0020 ; slot 1
 .halfword 0x1470 ; slot 2
