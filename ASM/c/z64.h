@@ -28,6 +28,8 @@
 #define NA_SE_SY_GET_RUPY 0x4803
 #define NA_SE_SY_GET_ITEM 0x4824
 
+#define OFFSETOF(structure, member) ((size_t)&(((structure*)0)->member))
+
 typedef struct
 {
   int16_t x;
@@ -382,6 +384,19 @@ typedef struct
                                     /* 0x0FBC */
 } z64_gameinfo_t;
 
+typedef struct z64
+{
+  /* data */
+  uint8_t unk_00[0x1C9EE];  /* 0x0000 */
+  uint16_t deaths[3];       /* 0x1C9EE */
+  char fileNames[3][8];     /* 0x1C9F4 */
+  uint16_t healthCapacities[3];
+  uint32_t questItems[3];
+  int16_t n64ddFlags[3];
+  int8_t defense[3];
+} z64_FileChooseContext_t;
+
+
 typedef struct
 {
   int32_t         entrance_index;           /* 0x0000 */
@@ -391,7 +406,8 @@ typedef struct
   uint16_t        day_time;                 /* 0x000C */
   char            unk_01_[0x0002];          /* 0x000E */
   int32_t         night_flag;               /* 0x0010 */
-  char            unk_02_[0x0008];          /* 0x0014 */
+  int32_t         total_days;               /* 0x0014 */
+  int32_t         bgs_day_count;            /* 0x0018 */
   char            id[6];                    /* 0x001C */
   int16_t         deaths;                   /* 0x0022 */
   char            file_name[0x08];          /* 0x0024 */
@@ -613,6 +629,21 @@ typedef struct
                                             /* 0x1450 */
 } z64_file_t;
 
+typedef struct {
+    /* 0x00 */ uint8_t* readBuff;
+} SramContext; // size = 0x4
+
+
+typedef struct {
+  uint8_t data[0xBA8];
+} extended_save_data_t;
+
+typedef struct {
+  z64_file_t      original_save;
+  extended_save_data_t additional_save_data;
+} extended_sram_file_t;
+
+
 typedef struct
 {
     uint8_t       sound_options;            /* 0x0000 */
@@ -620,10 +651,12 @@ typedef struct
     uint8_t       language_options;         /* 0x0002 */
     char          verification_string[9];   /* 0x0003 */
     char          unk_00_[0x0014];          /* 0x000C */
-    z64_file_t    primary_saves[3];         /* 0x0020 */
-    z64_file_t    backup_saves[3];          /* 0x3D10 */
+    extended_sram_file_t    primary_saves[2];         /* 0x0020 */
+    extended_sram_file_t    backup_saves[2];          /* 0x3D10 */
                                             /* 0x7A00 */
 } z64_sram_data_t;
+
+
 
 typedef struct
 {

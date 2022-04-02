@@ -335,18 +335,22 @@ Gameplay_InitSkybox:
 ; save slot table is stored at B71E60 in ROM
 .headersize( 0x800FBF00 - 0xB71E60)
 .orga 0xB71E60
+SRAM_SLOTS:
 .halfword 0x0020 ; slot 1
-.halfword 0x1470 ; slot 2
+.halfword 0x2018 ; slot 2
 .halfword 0x0000 ;remove slot 3
-.halfword 0x28C0 ; slot 1 backup
-.halfword 0x3D10 ; slot 2 backup
+.halfword 0x4010 ; slot 1 backup
+.halfword 0x6008 ; slot 2 backup
 .halfword 0x0000 ; remove slot 3 backup
 
 ; Hack Write_Save function to store additional collectible flags
-.orga 0xB065F4 ; In memory: 0x80090694
-    jal Save_Write_Hook
-.orga 0xB06668 ; In memory: 0x80090708
-    jal Save_Write_Hook
+;.org 0x800905D4
+;.orga 0xB065F4 ; In memory: 0x80090694
+;    jal Save_Write_Hook
+;.orga 0xB06668 ; In memory: 0x80090708
+;    jal Save_Write_Hook
+.org 0x800905D4
+    j Sram_WriteSave
 
 ; Hack Open_Save function to retrieve additional collectible flags
 ; At the start of the Sram_OpenSave function, SramContext address is stored in A0 and also on the stack at 0x20(SP)
@@ -365,8 +369,14 @@ jal Save_Init_Write_Hook
 ; Verify And Load all saves function to only check slots 1 and 2.
 ; Overwrite the loop calculation at 0x80090974
 ; slti at, s4, 0x0003
-.orga  0xB068D4 ; In memory: 0x80090974  
-slti at, s4, 0x0002
+;.orga  0xB068D4 ; In memory: 0x80090974  
+;slti at, s4, 0x0002
+.org 0x80090720
+j Sram_VerifyAndLoadAllSaves
+nop
+
+.org 0x80090A44
+addiu a1, a1, 0x203C
 
 ;Hack to EnItem00_Init to store if it was dropped by a pot
 ;replaces
