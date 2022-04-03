@@ -384,16 +384,20 @@ typedef struct
                                     /* 0x0FBC */
 } z64_gameinfo_t;
 
-typedef struct z64
+typedef struct 
 {
   /* data */
-  uint8_t unk_00[0x1C9EE];  /* 0x0000 */
+  uint8_t unk_00_[0x1C9EE];  /* 0x0000 */
   uint16_t deaths[3];       /* 0x1C9EE */
   char fileNames[3][8];     /* 0x1C9F4 */
-  uint16_t healthCapacities[3];
-  uint32_t questItems[3];
-  int16_t n64ddFlags[3];
-  int8_t defense[3];
+  uint16_t healthCapacities[3]; /* 0x1CA0C */
+  uint32_t questItems[3];  /* 0x1CA14 */
+  int16_t n64ddFlags[3];   /* 0x1CA20 */
+  int8_t defense[3];      /* 0x1CA26 */
+  uint8_t unk_01_[0x0F];    /* 0x1CA29 */
+  int16_t selectedFileIndex; /* 0x1CA38 */
+  uint8_t unk_02_[0x16];       /* 0x1CA3A */
+  int16_t copyDestFileIndex;     /* 0x1CA50 */
 } z64_FileChooseContext_t;
 
 

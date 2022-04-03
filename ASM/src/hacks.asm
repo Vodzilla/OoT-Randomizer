@@ -375,8 +375,10 @@ jal Save_Init_Write_Hook
 j Sram_VerifyAndLoadAllSaves
 nop
 
-.org 0x80090A44
-addiu a1, a1, 0x203C
+; Hack Sram_CopySave to use our new version of the function
+.org 0x80090FD0
+j Sram_CopySave
+nop
 
 ;Hack to EnItem00_Init to store if it was dropped by a pot
 ;replaces

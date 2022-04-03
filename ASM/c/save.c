@@ -25,6 +25,9 @@ extern uint16_t num_override_flags;
 extern uint16_t num_drop_override_flags;
 extern uint16_t SRAM_SLOTS[6];
 
+typedef void (*Sram_InitNewSave_Func)(void);
+Sram_InitNewSave_Func Sram_InitNewSave = (Sram_InitNewSave_Func)(0x8008FFC0);
+
 void Sram_WriteSave(SramContext* sramCtx)
 {
     uint16_t offset;
@@ -145,7 +148,7 @@ void Sram_VerifyAndLoadAllSaves(z64_FileChooseContext_t* fileChooseCtx, SramCont
                 z64_bzero(&z64_file.total_days, sizeof(int32_t));
                 z64_bzero(&z64_file.bgs_day_count, sizeof(int32_t));
 
-                //Sram_InitNewSave();
+                Sram_InitNewSave();
 
                 ptr = (uint16_t*)&z64_file;
 
@@ -198,6 +201,34 @@ void Sram_VerifyAndLoadAllSaves(z64_FileChooseContext_t* fileChooseCtx, SramCont
     z64_memcopy(&fileChooseCtx->defense[1], sramCtx->readBuff + SRAM_SLOTS[1] + DEFENSE_OFFSET, sizeof(fileChooseCtx->defense[0]));
     z64_memcopy(&fileChooseCtx->defense[2], sramCtx->readBuff + SRAM_SLOTS[0] + DEFENSE_OFFSET, sizeof(fileChooseCtx->defense[0]));
     
+}
+
+void Sram_CopySave(z64_FileChooseContext_t* fileChooseCtx, SramContext* sramCtx) {
+    int32_t src_offset = SRAM_SLOTS[fileChooseCtx->selectedFileIndex];
+    int32_t dst_offset = SRAM_SLOTS[fileChooseCtx->copyDestFileIndex]; 
+
+    //Copy the entire slot 
+    z64_memcopy(sramCtx->readBuff + dst_offset, sramCtx->readBuff + src_offset, SLOT_SIZE);
+    dst_offset = SRAM_SLOTS[fileChooseCtx->copyDestFileIndex + 3];
+    z64_memcopy(sramCtx->readBuff + dst_offset,sramCtx->readBuff + src_offset, SLOT_SIZE);
+
+    SsSram_ReadWrite(SRAM_BASE, sramCtx->readBuff, SRAM_SIZE, OS_WRITE);
+
+    dst_offset = SRAM_SLOTS[fileChooseCtx->copyDestFileIndex];
+
+    z64_memcopy(&fileChooseCtx->deaths[fileChooseCtx->copyDestFileIndex], sramCtx->readBuff + dst_offset + DEATHS_OFFSET,
+            sizeof(fileChooseCtx->deaths[0]));
+    z64_memcopy(&fileChooseCtx->fileNames[fileChooseCtx->copyDestFileIndex], sramCtx->readBuff + dst_offset + NAME_OFFSET,
+            sizeof(fileChooseCtx->fileNames[0]));
+    z64_memcopy(&fileChooseCtx->healthCapacities[fileChooseCtx->copyDestFileIndex], sramCtx->readBuff + dst_offset + HEALTH_CAP_OFFSET,
+            sizeof(fileChooseCtx->healthCapacities[0]));
+    z64_memcopy(&fileChooseCtx->questItems[fileChooseCtx->copyDestFileIndex], sramCtx->readBuff + dst_offset + QUEST_OFFSET,
+            sizeof(fileChooseCtx->questItems[0]));
+    z64_memcopy(&fileChooseCtx->n64ddFlags[fileChooseCtx->copyDestFileIndex], sramCtx->readBuff + dst_offset + N64DD_OFFSET,
+            sizeof(fileChooseCtx->n64ddFlags[0]));
+    z64_memcopy(&fileChooseCtx->defense[fileChooseCtx->copyDestFileIndex], sramCtx->readBuff + dst_offset + DEFENSE_OFFSET,
+            sizeof(fileChooseCtx->defense[0]));
+
 }
 
 void Save_Write_Hook(uint32_t addr, void* dramAddr, size_t size, uint32_t direction)
