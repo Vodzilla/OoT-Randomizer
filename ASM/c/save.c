@@ -28,6 +28,7 @@ extern uint16_t SRAM_SLOTS[6];
 typedef void (*Sram_InitNewSave_Func)(void);
 Sram_InitNewSave_Func Sram_InitNewSave = (Sram_InitNewSave_Func)(0x8008FFC0);
 
+//Override Sram_WriteSave to include the collectible flags in the checksum calculation.
 void Sram_WriteSave(SramContext* sramCtx)
 {
     uint16_t offset;
@@ -39,6 +40,7 @@ void Sram_WriteSave(SramContext* sramCtx)
     ptr = (uint16_t*)&z64_file;
     checksum = 0;
 
+    //Checksum calculation for original SaveContext data
     for (offset = 0; offset < CHECKSUM_SIZE; offset++) {
         checksum += *ptr++;
     }
@@ -55,22 +57,27 @@ void Sram_WriteSave(SramContext* sramCtx)
 
     z64_file.checksum = checksum;
 
+    //Write the base SaveContext data to the main slot
     offset = SRAM_SLOTS[z64_file.file_index];
     SsSram_ReadWrite(SRAM_BASE + offset, &z64_file, SRAM_ORIGINAL_SLOT_SIZE, OS_WRITE);
 
-
+    //Write the base SaveContext data to the backup slot
     offset = SRAM_SLOTS[z64_file.file_index + 3];
     SsSram_ReadWrite(SRAM_BASE + offset, &z64_file, SRAM_ORIGINAL_SLOT_SIZE, OS_WRITE);
 
+    //Write the collectible flags to the back of the main slot
     uint16_t slot_offset = SRAM_SLOTS[z64_file.file_index] + SLOT_SIZE - (4*num_override_flags + 4*num_drop_override_flags);
     SsSram_ReadWrite(SRAM_BASE + slot_offset, collectible_override_flags, 4*num_override_flags, OS_WRITE);
     SsSram_ReadWrite(SRAM_BASE + slot_offset + 4*num_override_flags, dropped_collectible_override_flags, 4*num_drop_override_flags, OS_WRITE);
 
+    //Write the collectible flags to the back of the backup slot
     slot_offset = SRAM_SLOTS[z64_file.file_index + 3] + SLOT_SIZE - (4*num_override_flags + 4*num_drop_override_flags);
     SsSram_ReadWrite(SRAM_BASE + slot_offset, collectible_override_flags, 4*num_override_flags, OS_WRITE);
     SsSram_ReadWrite(SRAM_BASE + slot_offset + 4*num_override_flags, dropped_collectible_override_flags, 4*num_drop_override_flags, OS_WRITE);
 }
 
+//Override the Sram_VerifyAndLoadAllSaves function. Only check our new 2 slots (and their backups).
+//And include the collectible flags in the checksum.
 void Sram_VerifyAndLoadAllSaves(z64_FileChooseContext_t* fileChooseCtx, SramContext* sramCtx)
 {
     uint16_t i;
@@ -203,6 +210,9 @@ void Sram_VerifyAndLoadAllSaves(z64_FileChooseContext_t* fileChooseCtx, SramCont
     
 }
 
+//Overrides the original Sram_CopySave function. 
+//SRAM is now split into 4 equal size slots, instead of the original 6 slots of sizeof(SaveContext). 
+//So instead of just copying the data for the SaveContext, we just copy the whole slot
 void Sram_CopySave(z64_FileChooseContext_t* fileChooseCtx, SramContext* sramCtx) {
     int32_t src_offset = SRAM_SLOTS[fileChooseCtx->selectedFileIndex];
     int32_t dst_offset = SRAM_SLOTS[fileChooseCtx->copyDestFileIndex]; 
@@ -231,6 +241,7 @@ void Sram_CopySave(z64_FileChooseContext_t* fileChooseCtx, SramContext* sramCtx)
 
 }
 
+//Hook the Save Write function to write the flags to SRAM
 void Save_Write_Hook(uint32_t addr, void* dramAddr, size_t size, uint32_t direction)
 {
     //Save the original data to SRAM
@@ -244,6 +255,7 @@ void Save_Write_Hook(uint32_t addr, void* dramAddr, size_t size, uint32_t direct
     //SsSram_ReadWrite(SRAM_BASE + SRAM_NEWDATA_START + (2*sizeof(uint32_t) *808) + ((z64_file.file_index) * sizeof(uint32_t)*808), &dropped_collectible_override_flags, sizeof(uint32_t) *808, 1);
 }
 
+//Hook the Save open function to load the saved collectible flags
 void Save_Open(char* sramBuffer)
 {
     uint16_t slot_offset = SRAM_SLOTS[z64_file.file_index] + SLOT_SIZE - (4*num_override_flags + 4*num_drop_override_flags);
@@ -253,6 +265,7 @@ void Save_Open(char* sramBuffer)
     //z64_memcopy(&dropped_collectible_override_flags, sramBuffer + SRAM_NEWDATA_START + (2*sizeof(uint32_t) *808) + ((z64_file.file_index) * sizeof(uint32_t)*808), sizeof(uint32_t)*808);
 }
 
+//Hook the init save function's call to SsSram_ReadWrite in order to zeroize the the collectible flags.
 void Save_Init_Write_Hook(uint32_t addr, void* dramAddr, size_t size, uint32_t direction)
 {
     //zeroize the new collectible flags in the sram buffer (dramAddr)
