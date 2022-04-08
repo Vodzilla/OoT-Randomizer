@@ -1,26 +1,8 @@
 {
     "entrances": {
-        "Child Spawn -> KF Links House" : {"region": "Market Guard House", "from":"Market Entrance"},
-        "Adult Spawn -> Temple of Time" : {"region" : "Death Mountain", "from":"Kak Behind Gate"}
+
     },
     "locations": {
-        "Dodongos Cavern MQ Staircase Crate Bottom Left" : "Small Key (Water Temple)",
-        "Dodongos Cavern MQ Staircase Crate Bottom Right" : "Small Key (Water Temple)",
-        "Dodongos Cavern MQ Staircase Crate Mid Left" : "Small Key (Fire Temple)",
-        "Dodongos Cavern MQ Staircase Crate Top Left" : "Small Key (Fire Temple)",
-        "Dodongos Cavern MQ Staircase Crate Mid Right" : "Small Key (Fire Temple)",
-        "Dodongos Cavern MQ Staircase Crate Top Right" : "Small Key (Fire Temple)",
-        "Dodongos Cavern MQ Poes Room Crate 5" : "Small Key (Spirit Temple)",
-        "Dodongos Cavern MQ Poes Room Crate 6" : "Boss Key (Spirit Temple)",
-        "Dodongos Cavern MQ Poes Room Crate 1" : "Slingshot",
-        "Dodongos Cavern MQ Poes Room Crate 2" : "Progressive Scale",
-        "Dodongos Cavern MQ Poes Room Crate 3" : "Boss Key (Shadow Temple)",
-        "Dodongos Cavern MQ Poes Room Crate 4" : "Megaton Hammer",
-        "Dodongos Cavern MQ Poes Room Crate 7" : "Gold Skulltula Token",
-        "Dodongos Cavern MQ Poes Room Crate 8" : "Gold Skulltula Token",
-        "Dodongos Cavern MQ Larvae Room Crate 1" : "Small Key (Forest Temple)",
-        "Dodongos Cavern MQ Larvae Room Crate 2" : "Slingshot",
-        "Dodongos Cavern MQ Larvae Room Crate 3" : "Boss Key (Fire Temple)",
-        "Dodongos Cavern MQ Larvae Room Crate 4" : "Gold Skulltula Token"
+        "ToT Light Arrows Cutscene" : "Light Arrows"
     }
 }
