@@ -34,6 +34,6 @@ def get_scene_flag_table_bytes(scene_flag_table):
     for scene in scene_flag_table:
         freestanding_flag_table_bytes[scene[0]] = num_freestanding_flags
         drop_flag_table_bytes[scene[0]] = num_drop_flags
-        num_freestanding_flags += ceil(scene[1]/32)
-        num_drop_flags += ceil(scene[2]/32)
+        num_freestanding_flags += 0 if scene[1] == 0 else ceil((scene[1] + 1)/32)
+        num_drop_flags += 0 if scene[2] == 0 else ceil((scene[2] + 1)/32)
     return (freestanding_flag_table_bytes, drop_flag_table_bytes, num_freestanding_flags, num_drop_flags)
